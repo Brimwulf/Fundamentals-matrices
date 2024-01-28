@@ -143,8 +143,18 @@ myMat mTranspose(myMat m) {
 myMat mAdd(myMat m1, myMat m2) {
 	// create a new matrix whose elements are the sum of the equiv elements in m1 and m2
 	// if time add code to check matrices of right size
-	myMat res = zeroMat(0, 0);		// change arguments
+	if (sizeof(m1) != sizeof(m2)) {
+		myMat res = zeroMat(0, 0);
+		return res;
+	}
+	// change arguments
 	// write code to do add
+	for (int i = 0; sizeof(m1); i++) {
+		for (int j = 0; sizeof(m2); j++) {
+			myMat res = zeroMat(0, 0);
+			res[i][j] = m1[i][j] + m2[i][j];
+		}
+	}
 	return res;
 }
 
