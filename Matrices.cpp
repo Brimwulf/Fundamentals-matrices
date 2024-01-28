@@ -109,18 +109,18 @@ int dotProd(myMat v1, myMat v2) {
 	// calculate the dot product of two vectors v1 and v2, each of which could be eitherrow or column vectors
 	int prod[3]; // initialising a product variable
 	int res; // initialising a variable for the result
-	// I want to have a for loop that steps through each item in both arrays and multiplies them together and then places them in a new array called prod
-	/*for (int i = 0; i < sizeof(v1); i++) { 
+	// I want to have a for loop that steps through each item in both matrices and multiplies them together and then places them in a new 'matrix' called prod
+	for (int i = 0; i < sizeof(v1); i++) { 
 		for (int j = 0; j < sizeof(v2); j++) {
 			prod[i, j] = v1[i, j] * v2[i, j];
 		}
-	}*/
+	}
 	/* then I want to have a for loop that steps through each item in the product array and increments the res variable by 
 	this amount thus res will be the sum of each item in prod */
-	/*for (int i = 0; i < sizeof(prod); i++) {
+	for (int i = 0; i < sizeof(prod); i++) {
 		res += prod[i];
 	}
-	return res;*/
+	return res;
 }
 
 void testVecs(myMat m1, myMat m3) {
@@ -128,7 +128,7 @@ void testVecs(myMat m1, myMat m3) {
 	cout << "Testing Vector routines" << "\n";
 	printMat("m1 row 0", mGetRow(m1, 0));	// display row 0 of m1
 	printMat("m3 col 1", mGetCol(m3, 1));	// display col 1 of m3
-	//	cout << "Dot prod of these is " << dotProd(mGetRow(m1, 0), mGetCol(m3, 1)) << "\n\n";
+	cout << "Dot prod of these is " << dotProd(mGetRow(m1, 0), mGetCol(m3, 1)) << "\n\n";
 	//	cout << "Dot prod of m1 row 1 and m3 row 1 " << dotProd(mGetRow(m1, 0), mGetRow(m3, 1)) << "\n\n";
 }
 
@@ -145,6 +145,7 @@ myMat mAdd(myMat m1, myMat m2) {
 	// if time add code to check matrices of right size
 	if (sizeof(m1) != sizeof(m2)) {
 		myMat res = zeroMat(0, 0);
+		cout << "Sizes of matrices are not equal.";
 		return res;
 	}
 	// change arguments
