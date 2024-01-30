@@ -107,20 +107,20 @@ myMat mSetCol(myMat m, int col, myMat v) {
 
 int dotProd(myMat v1, myMat v2) {
 	// calculate the dot product of two vectors v1 and v2, each of which could be eitherrow or column vectors
-	int prod[3]; // initialising a product variable
+	myMat prod = zeroMat(0,0); // initialising a product variable
 	int res; // initialising a variable for the result
 	// I want to have a for loop that steps through each item in both arrays and multiplies them together and then places them in a new array called prod
-	/*for (int i = 0; i < sizeof(v1); i++) { 
-		for (int j = 0; j < sizeof(v2); j++) {
-			prod[i, j] = v1[i, j] * v2[i, j];
+	for (int i = 0; i < v1.numRows; i++) { 
+		for (int j = 0; j < v2.numCols; j++) {
+			prod.data[i, j] = v1.data[i, j] * v2.data[i, j];
 		}
-	}*/
+	}
 	/* then I want to have a for loop that steps through each item in the product array and increments the res variable by 
 	this amount thus res will be the sum of each item in prod */
-	/*for (int i = 0; i < sizeof(prod); i++) {
-		res += prod[i];
+	for (int i = 0; i < prod.numRows; i++) {
+		res += prod.data[i];
 	}
-	return res;*/
+	return res;
 }
 
 void testVecs(myMat m1, myMat m3) {
@@ -143,19 +143,28 @@ myMat mTranspose(myMat m) {
 myMat mAdd(myMat m1, myMat m2) {
 	// create a new matrix whose elements are the sum of the equiv elements in m1 and m2
 	// if time add code to check matrices of right size
-	if (sizeof(m1) != sizeof(m2)) {
+	if (m1.numRows != m2.numRows) {				// An if statement that checks that both matrices are equal size rows.
 		myMat res = zeroMat(0, 0);
+		matError("Matrices size are not equal");	// Returns this error statement if they are not.
+		return res;
+	}
+	else if (m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size columns
+		myMat res = zeroMat(0, 0);
+		matError("Matrices size are not equal");	// Returns this error statement if they are not
 		return res;
 	}
 	// change arguments
 	// write code to do add
-	for (int i = 0; sizeof(m1); i++) {
-		for (int j = 0; sizeof(m2); j++) {
-			myMat res = zeroMat(0, 0);
-			res[i][j] = m1[i][j] + m2[i][j];
+	// I want to create a for loop that steps through each item in both matrices and adds them together.
+	else {
+		for (int i = 0; i < m1.numRows; i++) {
+			for (int j = 0; j < m2.numRows; j++) {
+				myMat res = zeroMat(0, 0);
+				res.data[i, j] = m1.data[i, j] + m2.data[i, j];
+				return res;
+			}
 		}
 	}
-	return res;
 }
 
 myMat mScalarMultDiv(myMat m, int s, int isMult) {
