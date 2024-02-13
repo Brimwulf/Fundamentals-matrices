@@ -108,18 +108,24 @@ myMat mSetCol(myMat m, int col, myMat v) {
 int dotProd(myMat v1, myMat v2) {
 	// calculate the dot product of two vectors v1 and v2, each of which could be eitherrow or column vectors
 	myMat prod = zeroMat(0,0); // initialising a product variable
-	int res; // initialising a variable for the result
+	int res{}; // initialising a variable for the result
 	// I want to have a for loop that steps through each item in both arrays and multiplies them together and then places them in a new array called prod
+	if (v1.numCols != v2.numRows || v1.numRows != v2.numCols) {		// Error catching.
+		matError("Invalid vector layout");
+		return 0;
+	}
 	for (int i = 0; i < v1.numRows; i++) { 
 		for (int j = 0; j < v2.numCols; j++) {
-			prod.data[i, j] = v1.data[i, j] * v2.data[i, j];
+			res += v1.data[i, j] * v2.data[i, j];
 		}
 	}
 	/* then I want to have a for loop that steps through each item in the product array and increments the res variable by 
 	this amount thus res will be the sum of each item in prod */
-	for (int i = 0; i < prod.numRows; i++) {
+	/*for (int i = 0; i < prod.numRows; i++) {
 		res += prod.data[i];
-	}
+	}*/
+	// Rewrote this part so that the calculation places directly into result which makes more sense.
+
 	return res;
 }
 
@@ -137,40 +143,72 @@ myMat mTranspose(myMat m) {
 	// generate a new matrix which is the transpose of m
 	myMat res = zeroMat(0, 0);		// change arguments
 	// write code to do transpose
+	/* If each item within a matrix is indexed as I, J then that means to make the transpose matrix, I need to 
+	change each item to be J, I thus flipping the rows and columns. */
+	
+	for (int i = 0; i < m.numRows; i++) {
+		for (int j = 0; j < m.numRows; j++) {
+			int temp = res.data[i];		// Here I need to make a temp variable to store the i value of res so it is not overwritten.
+			res.data[i] = m.data[j];
+			res.data[j] = temp;
+		}
+	}
+
 	return res;
 }
 
 myMat mAdd(myMat m1, myMat m2) {
+	myMat res = zeroMat(0, 0);
 	// create a new matrix whose elements are the sum of the equiv elements in m1 and m2
 	// if time add code to check matrices of right size
-	if (m1.numRows != m2.numRows) {				// An if statement that checks that both matrices are equal size rows.
-		myMat res = zeroMat(0, 0);
+	if (m1.numRows != m2.numRows || m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size rows.
 		matError("Matrices size are not equal");	// Returns this error statement if they are not.
-		return res;
-	}
-	else if (m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size columns
-		myMat res = zeroMat(0, 0);
-		matError("Matrices size are not equal");	// Returns this error statement if they are not
-		return res;
+		return zeroMat(0,0);
 	}
 	// change arguments
 	// write code to do add
 	// I want to create a for loop that steps through each item in both matrices and adds them together.
-	else {
-		for (int i = 0; i < m1.numRows; i++) {
-			for (int j = 0; j < m2.numRows; j++) {
-				myMat res = zeroMat(0, 0);
+
+	for (int i = 0; i < m1.numRows; i++) {
+		for (int j = 0; j < m2.numRows; j++) {
 				res.data[i, j] = m1.data[i, j] + m2.data[i, j];
-				return res;
-			}
 		}
 	}
+	return res;
 }
 
 myMat mScalarMultDiv(myMat m, int s, int isMult) {
 	// multiply or divide all elements in m by s
 	myMat res = zeroMat(0, 0);		// change arguments
 	// write code to do multiply or divide by scalar
+	// Checking if user wishes to divide or multiply. This part might later be made redundant by the parameters or it might make one of the parameters redundant.
+	cout << "Multiply or divide? M/D " << endl;
+	string choice;
+	while (true) {
+		cin >> choice;
+		if (choice != "M" || choice != "D") {
+			cout << "Invalid please retry" << endl;
+		}
+		else {
+			break;
+		}
+	}
+	if (choice == "A") {
+		cout << "Multiplying..." << endl;
+		for (int i = 0; i < m.numCols; i++) {
+			for (int j = 0; j < m.numRows; j++) {
+				res.data[i, j] = m.data[i, j] * s;	// Stepping through each item of both matrices and multiplying them by s
+			}
+		}
+	}
+	else {
+		cout << "Dividing..." << endl;
+		for (int i = 0; i < m.numCols; i++) {
+			for (int j = 0; j < m.numRows; j++) {
+				res.data[i, j] = m.data[i, j] / s;	// Doing the same but with division.
+			}
+		}
+	}
 	return res;
 }
 
@@ -179,6 +217,11 @@ myMat mMult(myMat m1, myMat m2) {
 	// if time add code to check matrices of right size
 	myMat res = zeroMat(0, 0);		// change arguments
 	// write code to do multiply
+	if (m1.numCols != m2.numRows || m1.numRows != m2.numCols) {
+		matError("Matrices sizes are invalid");
+		return zeroMat(0, 0);
+	}
+
 	return res;
 }
 
