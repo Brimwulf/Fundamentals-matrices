@@ -110,10 +110,10 @@ int dotProd(myMat v1, myMat v2) {
 	myMat prod = zeroMat(0,0); // initialising a product variable
 	int res{}; // initialising a variable for the result
 	// I want to have a for loop that steps through each item in both arrays and multiplies them together and then places them in a new array called prod
-	if (v1.numCols != v2.numRows || v1.numRows != v2.numCols) {		// Error catching.
-		matError("Invalid vector layout");
-		return 0;
-	}
+	//if (v1.numCols != v2.numRows || v1.numRows != v2.numCols) {		// Error catching.
+		//matError("Invalid vector layout");
+		//return 0;
+	//}
 	for (int i = 0; i < v1.numRows; i++) { 
 		for (int j = 0; j < v2.numCols; j++) {
 			res += v1.data[i, j] * v2.data[i, j];
@@ -134,8 +134,8 @@ void testVecs(myMat m1, myMat m3) {
 	cout << "Testing Vector routines" << "\n";
 	printMat("m1 row 0", mGetRow(m1, 0));	// display row 0 of m1
 	printMat("m3 col 1", mGetCol(m3, 1));	// display col 1 of m3
-	//	cout << "Dot prod of these is " << dotProd(mGetRow(m1, 0), mGetCol(m3, 1)) << "\n\n";
-	//	cout << "Dot prod of m1 row 1 and m3 row 1 " << dotProd(mGetRow(m1, 0), mGetRow(m3, 1)) << "\n\n";
+	cout << "Dot prod of these is " << dotProd(mGetRow(m1, 0), mGetCol(m3, 1)) << "\n\n";
+	cout << "Dot prod of m1 row 1 and m3 row 1 " << dotProd(mGetRow(m1, 0), mGetRow(m3, 1)) << "\n\n";
 }
 
 
@@ -163,7 +163,7 @@ myMat mAdd(myMat m1, myMat m2) {
 	// if time add code to check matrices of right size
 	if (m1.numRows != m2.numRows || m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size rows.
 		matError("Matrices size are not equal");	// Returns this error statement if they are not.
-		return zeroMat(0,0);
+		//return zeroMat(0,0);
 	}
 	// change arguments
 	// write code to do add
@@ -177,7 +177,7 @@ myMat mAdd(myMat m1, myMat m2) {
 	return res;
 }
 
-myMat mScalarMultDiv(myMat m, int s, int isMult) {
+myMat mScalarMultDiv(myMat m, int s) {
 	// multiply or divide all elements in m by s
 	myMat res = zeroMat(0, 0);		// change arguments
 	// write code to do multiply or divide by scalar
@@ -186,14 +186,14 @@ myMat mScalarMultDiv(myMat m, int s, int isMult) {
 	string choice;
 	while (true) {
 		cin >> choice;
-		if (choice != "M" || choice != "D") {
+		if (choice != "M" || choice != "D") {	// I think C++ is not able to compare choice to "M" or "D". I need to check how to get around this.
 			cout << "Invalid please retry" << endl;
 		}
 		else {
 			break;
 		}
 	}
-	if (choice == "A") {
+	if (choice == "M") {
 		cout << "Multiplying..." << endl;
 		for (int i = 0; i < m.numCols; i++) {
 			for (int j = 0; j < m.numRows; j++) {
@@ -221,6 +221,11 @@ myMat mMult(myMat m1, myMat m2) {
 		matError("Matrices sizes are invalid");
 		return zeroMat(0, 0);
 	}
+	for (int i = 0; i < m1.numRows; i++) {
+		for (int j = 0; j < m2.numCols; j++) {
+			res.data[i, j] = m1.data[i] * m2.data[j];
+		}
+	}
 
 	return res;
 }
@@ -234,19 +239,31 @@ void testMatOps(myMat m1, myMat m2, myMat m3) {
 	printMat("m1*m2", mMult(m1, m3));
 	printMat("m2*m1", mMult(m3, m1));
 	printMat("m1*m3", mMult(m1, m2));
+	printMat("m1*m3", mScalarMultDiv(m1, 3));
 }
 
 
-/*   commented out code you will do as part of Summative Assessment later in term
+/*   commented out code you will do as part of Summative Assessment later in term */
 
 
 myMat mSubMat(myMat m, int row, int col) {
 	// return matrix m but omitting specified row and column
 	// if time add code to check matrices of right size
-	myMat res = zeroMat(0,0);		// change arguments
+	myMat mSub = zeroMat(m.numRows-1,m.numCols-1);		// change arguments
+	//mSub.numRows = m.numRows - 1;
+	//mSub.numCols = m.numCols - 1;
+	// Created a matrix with one fewer row and column than the matrix parsed in.
+	for (int i = 0; i < m.numRows; i++) {
+		for (int j = 0; j < m.numCols; j++) {
+			if (i == row || j == col) {
+				continue;
+			}
+			// if i or j matches the row or column parsed into this function it skips over that data value thus omitting it from the submatrix
+			mSub.data[i, j] = m.data[i, j];
+		}
+	}
 		// write code to do sub mat
-	cout << zeroMat << endl;
-	return res;
+	return mSub;
 }
 
 /*
