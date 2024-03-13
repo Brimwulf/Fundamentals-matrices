@@ -191,9 +191,15 @@ myMat mScalarMultDiv(myMat m, int s, int choice) {
 		}
 	}
 	else if (choice == 1) {
-		for (int i = 0; i < m.numCols; i++) {
-			for (int j = 0; j < m.numRows; j++) {
-				res.data[i, j] = m.data[i, j] / s;	// Doing the same but with division.
+		if (s == 0) {
+			cout << "Error: cannot divide by zero";
+			return zeroMat(0,0);
+		}
+		else {
+			for (int i = 0; i < m.numCols; i++) {
+				for (int j = 0; j < m.numRows; j++) {
+					res.data[i, j] = m.data[i, j] / s;	// Doing the same but with division.
+				}
 			}
 		}
 	}
