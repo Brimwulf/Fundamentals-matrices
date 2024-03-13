@@ -177,37 +177,28 @@ myMat mAdd(myMat m1, myMat m2) {
 	return res;
 }
 
-myMat mScalarMultDiv(myMat m, int s) {
+myMat mScalarMultDiv(myMat m, int s, int choice) {
 	// multiply or divide all elements in m by s
 	myMat res = zeroMat(0, 0);		// change arguments
 	// write code to do multiply or divide by scalar
 	// Checking if user wishes to divide or multiply. This part might later be made redundant by the parameters or it might make one of the parameters redundant.
-	cout << "Multiply or divide? M/D " << endl;
-	string choice;
-	while (true) {
-		cin >> choice;
-		if (choice != "M" || choice != "D") {	// I think C++ is not able to compare choice to "M" or "D". I need to check how to get around this.
-			cout << "Invalid please retry" << endl;
-		}
-		else {
-			break;
-		}
-	}
-	if (choice == "M") {
-		cout << "Multiplying..." << endl;
+	// The choice parameter I have added. It is set so that 0 = multiply and 1 = divide.
+	if (choice == 0) {
 		for (int i = 0; i < m.numCols; i++) {
 			for (int j = 0; j < m.numRows; j++) {
 				res.data[i, j] = m.data[i, j] * s;	// Stepping through each item of both matrices and multiplying them by s
 			}
 		}
 	}
-	else {
-		cout << "Dividing..." << endl;
+	else if (choice == 1) {
 		for (int i = 0; i < m.numCols; i++) {
 			for (int j = 0; j < m.numRows; j++) {
 				res.data[i, j] = m.data[i, j] / s;	// Doing the same but with division.
 			}
 		}
+	}
+	else {
+		cout << "Error: Invalid parameter for choice";
 	}
 	return res;
 }
@@ -292,21 +283,39 @@ int mDet(myMat m) {
 	}
 }
 
-/*
+
 myMat mAdj(myMat m) {
 	// return adjoint of matrix m     assume 2*2 initially
 	// if time add code to check matrices of right size
-	myMat res = zeroMat(0,0);		// change arguments
-		// write code to do adjoint initially handcode for 1*1 and 2*2 ... if brave do 3*3 or 4*4 recursivel
-	return res;
+	myMat Cofactor;
+	Cofactor.numCols = m.numCols;
+	Cofactor.numRows = m.numRows;
+	for (int i = 0; i < m.numRows; i++) {
+		for (int j = 0; j < m.numCols; j++) {
+			int Cofactor_sign = -1 ^ (i + j) * mDet(m);
+			Cofactor.data[i, j] = Cofactor_sign;
+		}
+	}
 }
+
 
 void testMatEqn (myMat A, myMat b) {
 	// solve Ax = b using Cramer  and using Adjoint
 	// This is for assessment later in term
+	myMat x;
+	x.numRows = A.numRows;
+	x.numCols = 1;
+	double detA = mDet(A);
+	double inverse_detA = 1 / detA;
+	myMat inverse_A = mScalarMultDiv(A, inverse_detA, 1);
+	for (int i = 0; i < A.numRows; i++) {
+		for (int j = 0; j < A.numCols; j++) {
+			x.data[i,0] = b.data[i, j] * inverse_A.data[i, j];	// I'm fairly sure this part of the function won't work so I need to revisit it.
+		}
+	}
 }
 
-*/
+
 int main()
 {
 	cout << "vl024813\n";	// change to your student number
@@ -321,6 +330,7 @@ int main()
 
 	testVecs(m1, m3);						// test the vector routines
 	testMatOps(m1, m2, m3);					// test the add, transpose and multiply
+	testMatEqn(m1, m2);
 
 	return 0;
 }
