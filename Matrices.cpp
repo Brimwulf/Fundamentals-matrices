@@ -7,7 +7,6 @@
 
 #include <string>
 #include <iostream>
-using namespace std;
 
 const int maxM = 16;	// allows for matrices up to size 4*4
 
@@ -31,26 +30,26 @@ int getIndex(myMat m, int r, int c) {
 	return r * m.numCols + c;
 }
 
-myMat matError(string errstr) {
+myMat matError(std::string errstr) {
 	// if this is called, an error has occured ... output errstr and return 0 size myMat
-	cout << "Error : " << errstr << "\n";
+	std::cout << "Error : " << errstr << "\n";
 	return zeroMat(0, 0);
 }
 
-int intError(string errstr) {
+int intError(std::string errstr) {
 	// if this is called, an error has occured ... output errstr and return 0 
-	cout << "Error : " << errstr << "\n";
+	std::cout << "Error : " << errstr << "\n";
 	return 0;
 }
 
-myMat mFromStr(string s) {
+myMat mFromStr(std::string s) {
 	// create a matrix from string s
 	// string of form "1,2;3,4;5,6"   ; separates rows and , separates columns ... No error check
 	int ms;
 	if (s.length() > 0) ms = 1; else ms = 0;
 	myMat m = zeroMat(ms, ms);						// is s empty create 0*0 matrix, else start with 1*1 matrix
 	int mndx = 0;									// used to index into array
-	string sub = "";								// sub string - numbers between , or ; set empty
+	std::string sub = "";								// sub string - numbers between , or ; set empty
 	for (int ct = 0; ct < s.length(); ct++) {		// each char in turn
 		if ((s[ct] == ',') || (s[ct] == ';')) {	// if , or ; then sub contains number
 			m.data[mndx++] = stoi(sub);				// convert number to integer, put in data array
@@ -66,13 +65,13 @@ myMat mFromStr(string s) {
 
 void printMat(const char* mess, myMat m) {
 	// mess is string to be printed, followed by matrix m
-	cout << mess << " = " << "\n";				// print message
+	std::cout << mess << " = " << "\n";				// print message
 	for (int r = 0; r < m.numRows; r++) {		// do each row
 		for (int c = 0; c < m.numCols; c++)		// do each column
-			cout << m.data[getIndex(m, r, c)] << "\t";	// outputing the element then tab
-		cout << "\n";							// output new line at end of row
+			std::cout << m.data[getIndex(m, r, c)] << "\t";	// outputing the element then tab
+		std::cout << "\n";							// output new line at end of row
 	}
-	cout << "\n";								// and end of Matrix
+	std::cout << "\n";								// and end of Matrix
 }
 
 
@@ -107,18 +106,12 @@ myMat mSetCol(myMat m, int col, myMat v) {
 
 int dotProd(myMat v1, myMat v2) {
 	// calculate the dot product of two vectors v1 and v2, each of which could be eitherrow or column vectors
-	myMat prod = zeroMat(0,0); // initialising a product variable
 	int res{}; // initialising a variable for the result
 	// I want to have a for loop that steps through each item in both arrays and multiplies them together and then places them in a new array called prod
-	//if (v1.numCols != v2.numRows || v1.numRows != v2.numCols) {		// Error catching.
-		//matError("Invalid vector layout");
-		//return 0;
-	//}
-	for (int i = 0; i < v1.numRows; i++) { 
-		for (int j = 0; j < v2.numCols; j++) {
-			res += v1.data[i, j] * v2.data[i, j];
-		}
+	for (int i = 0; i < v2.numCols*v2.numRows; i++) {
+		res += v1.data[i] * v2.data[i];
 	}
+	
 	/* then I want to have a for loop that steps through each item in the product array and increments the res variable by 
 	this amount thus res will be the sum of each item in prod */
 	/*for (int i = 0; i < prod.numRows; i++) {
@@ -131,22 +124,22 @@ int dotProd(myMat v1, myMat v2) {
 
 void testVecs(myMat m1, myMat m3) {
 	// test vector routines ... get row from m1, col from m3, do dot product of these
-	cout << "Testing Vector routines" << "\n";
+	std::cout << "Testing Vector routines" << "\n";
 	printMat("m1 row 0", mGetRow(m1, 0));	// display row 0 of m1
 	printMat("m3 col 1", mGetCol(m3, 1));	// display col 1 of m3
-	cout << "Dot prod of these is " << dotProd(mGetRow(m1, 0), mGetCol(m3, 1)) << "\n\n";
-	cout << "Dot prod of m1 row 1 and m3 row 1 " << dotProd(mGetRow(m1, 0), mGetRow(m3, 1)) << "\n\n";
+	std::cout << "Dot prod of these is " << dotProd(mGetRow(m1, 0), mGetCol(m3, 1)) << "\n\n";
+	std::cout << "Dot prod of m1 row 1 and m3 row 1 " << dotProd(mGetRow(m1, 0), mGetRow(m3, 1)) << "\n\n";
 }
 
 
 myMat mTranspose(myMat m) {
 	// generate a new matrix which is the transpose of m
-	myMat res = zeroMat(0, 0);		// change arguments
+	myMat res = zeroMat(m.numCols, m.numRows);		// change arguments
 	// write code to do transpose
 	/* If each item within a matrix is indexed as I, J then that means to make the transpose matrix, I need to 
 	change each item to be J, I thus flipping the rows and columns. */
 	
-	for (int i = 0; i < m.numRows; i++) {
+	for (int i = 0; i < m.numCols; i++) {
 		for (int j = 0; j < m.numRows; j++) {
 			int temp = res.data[i];		// Here I need to make a temp variable to store the i value of res so it is not overwritten.
 			res.data[i] = m.data[j];
@@ -158,53 +151,56 @@ myMat mTranspose(myMat m) {
 }
 
 myMat mAdd(myMat m1, myMat m2) {
-	myMat res = zeroMat(0, 0);
+	myMat res = zeroMat(m1.numRows, m2.numCols);
 	// create a new matrix whose elements are the sum of the equiv elements in m1 and m2
 	// if time add code to check matrices of right size
-	if (m1.numRows != m2.numRows || m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size rows.
-		matError("Matrices size are not equal");	// Returns this error statement if they are not.
-		//return zeroMat(0,0);
-	}
+	//if (m1.numRows != m2.numRows || m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size rows.
+		// Returns this error statement if they are not.
+	//return zeroMat(0,0);
+	//}
 	// change arguments
 	// write code to do add
 	// I want to create a for loop that steps through each item in both matrices and adds them together.
 
-	for (int i = 0; i < m1.numRows; i++) {
-		for (int j = 0; j < m2.numRows; j++) {
-			res.data[i, j] = m1.data[i, j] + m2.data[i, j];
+	if (m1.numCols == m2.numCols && m1.numRows == m2.numRows) { 
+		for (int i = 0; i < m1.numRows*m1.numCols; i++) {
+			res.data[i] = m1.data[i] + m2.data[i];
 		}
+		return res;
 	}
-	return res;
+	else {
+		matError("Matrices are not of equal size");
+	}
 }
 
 myMat mScalarMultDiv(myMat m, int s, int choice) {
 	// multiply or divide all elements in m by s
-	myMat res = zeroMat(0, 0);		// change arguments
+	myMat res = zeroMat(m.numRows, m.numCols);		// change arguments
 	// write code to do multiply or divide by scalar
 	// Checking if user wishes to divide or multiply. This part might later be made redundant by the parameters or it might make one of the parameters redundant.
 	// The choice parameter I have added. It is set so that 0 = multiply and 1 = divide.
 	if (choice == 0) {
 		for (int i = 0; i < m.numCols; i++) {
 			for (int j = 0; j < m.numRows; j++) {
-				res.data[i, j] = m.data[i, j] * s;	// Stepping through each item of both matrices and multiplying them by s
+				res.data[getIndex(m, i, j)] = m.data[getIndex(m, i, j)] * s;	// Stepping through each item of both matrices and multiplying them by s
 			}
 		}
 	}
 	else if (choice == 1) {
 		if (s == 0) {
-			cout << "Error: cannot divide by zero";
+			std::cout << "Error: cannot divide by zero";
 			return zeroMat(0,0);
 		}
 		else {
 			for (int i = 0; i < m.numCols; i++) {
 				for (int j = 0; j < m.numRows; j++) {
-					res.data[i, j] = m.data[i, j] / s;	// Doing the same but with division.
+					res.data[getIndex(m, i, j)] = m.data[getIndex(m, i, j)] / s;	// Doing the same but with division.
 				}
 			}
 		}
 	}
 	else {
-		cout << "Error: Invalid parameter for choice";
+		std::cout << "Error: Invalid parameter for choice";
 	}
 	return res;
 }
@@ -212,31 +208,34 @@ myMat mScalarMultDiv(myMat m, int s, int choice) {
 myMat mMult(myMat m1, myMat m2) {
 	// generate a matrix which is the product of m1 and m2
 	// if time add code to check matrices of right size
-	myMat res = zeroMat(0, 0);		// change arguments
+	myMat res = zeroMat(m1.numRows, m2.numCols);		// change arguments
 	// write code to do multiply
-	if (m1.numCols != m2.numRows || m1.numRows != m2.numCols) {
+	
+		
+	if(m1.numCols == m2.numCols && m1.numRows == m2.numRows) {
+		for (int i = 0; i < m1.numRows; i++) {
+			for (int j = 0; j < m2.numCols; j++) {
+				res.data[getIndex(res, i, j)] = m1.data[i] * m2.data[j];
+			}
+		}
+	}
+	else {
 		matError("Matrices sizes are invalid");
 		return zeroMat(0, 0);
 	}
-	for (int i = 0; i < m1.numRows; i++) {
-		for (int j = 0; j < m2.numCols; j++) {
-			res.data[i, j] = m1.data[i] * m2.data[j];
-		}
-	}
-
 	return res;
 }
 
 void testMatOps(myMat m1, myMat m2, myMat m3) {
 	// test matrix operations m1 + m2; m1 + m3 (not poss) m1 + m3'; m1 * m3; m3 * m2
-	cout << "Testing Add, Transpose, Multiply routines" << "\n";
+	std::cout << "Testing Add, Transpose, Multiply routines" << "\n";
 	printMat("m1+m2", mAdd(m1, m2));
 	printMat("m1 + m3", mAdd(m1, m3));
 	printMat("m1 + m3'", mAdd(m1, mTranspose(m3)));
-	printMat("m1*m2", mMult(m1, m3));
-	printMat("m2*m1", mMult(m3, m1));
+	printMat("m1*m2", mMult(m1, m2));
+	printMat("m2*m1", mMult(m2, m1));
 	printMat("m1*m3", mMult(m1, m2));
-	printMat("m1*m3", mScalarMultDiv(m1, 3));
+	printMat("m1*m3", mScalarMultDiv(m1, 3, 0));
 }
 
 
@@ -256,7 +255,7 @@ myMat mSubMat(myMat m, int row, int col) {
 				continue;
 			}
 			// if i or j matches the row or column parsed into this function it skips over that data value thus omitting it from the submatrix
-			mSub.data[i, j] = m.data[i, j];
+			mSub.data[getIndex(mSub, i, j)] = m.data[getIndex(m, i, j)];
 		}
 	}
 		// write code to do sub mat
@@ -276,7 +275,7 @@ int mDet(myMat m) {
 	else if (m.numCols > 2 || m.numRows > 2) {
 		for (int i = 0; i < m.numRows; i++) {
 			for (int j = 0; j < m.numCols; j++) {
-				Mat_det += ((i+j) % 2 == 0 ? 1 :  -1) * m.data[i,j] * mDet(mSubMat(m, i, j));
+				Mat_det += ((i+j) % 2 == 0 ? 1 :  -1) * m.data[getIndex(m,i,j)] * mDet(mSubMat(m, i, j));
 				/* the((i + j) % 2 == 0 ? 1 : -1) part of this line was difficult to grasp at first but essentially what it does is check if 
 				i+j is divisible by 2. If it is then the result is 1 and if not -1. This part is necessary because we need to make sure we have 
 				the correct signs in order to accurately calculate the determinant of a matrix > 2x2.*/
@@ -302,6 +301,7 @@ myMat mAdj(myMat m) {
 			Cofactor.data[i, j] = Cofactor_sign;
 		}
 	}
+	return Cofactor;
 }
 
 
@@ -324,7 +324,7 @@ void testMatEqn (myMat A, myMat b) {
 
 int main()
 {
-	cout << "vl024813\n";	// change to your student number
+	std::cout << "vl024813\n";	// change to your student number
 	myMat m1, m2, m3;						// create  matrices
 
 	m1 = mFromStr("9,6,8;7,8,10");			// change numbers to those in A from Q1 on web page, as specified on the sheet
