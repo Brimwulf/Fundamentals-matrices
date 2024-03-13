@@ -171,7 +171,7 @@ myMat mAdd(myMat m1, myMat m2) {
 
 	for (int i = 0; i < m1.numRows; i++) {
 		for (int j = 0; j < m2.numRows; j++) {
-				res.data[i, j] = m1.data[i, j] + m2.data[i, j];
+			res.data[i, j] = m1.data[i, j] + m2.data[i, j];
 		}
 	}
 	return res;
@@ -266,12 +266,33 @@ myMat mSubMat(myMat m, int row, int col) {
 	return mSub;
 }
 
-/*
+
 int mDet(myMat m) {
 	// compute determinant of matrix m
-	return 0;		// change this ... initially handcode for 1*1 and 2*2 ... if brave do 3*3 or 4*4 recursively
+	int fourMat_det;	// initialising result for 2x2
+	int Mat_det = 0;		// initialising a result for >2x2
+	if (m.numCols == 2 && m.numRows == 2) {
+		fourMat_det = m.data[0, 0] * m.data[1, 1] - m.data[0, 1] * m.data[1, 0];
+		return fourMat_det;
+	}
+	// nice and simple, this just calculates ad-bc for a matrix [a,b;c,d]
+	else if (m.numCols > 2 || m.numRows > 2) {
+		for (int i = 0; i < m.numRows; i++) {
+			for (int j = 0; j < m.numCols; j++) {
+				Mat_det += ((i+j) % 2 == 0 ? 1 :  -1) * m.data[i,j] * mDet(mSubMat(m, i, j));
+				/* the((i + j) % 2 == 0 ? 1 : -1) part of this line was difficult to grasp at first but essentially what it does is check if 
+				i+j is divisible by 2. If it is then the result is 1 and if not -1. This part is necessary because we need to make sure we have 
+				the correct signs in order to accurately calculate the determinant of a matrix > 2x2.*/
+			}
+		}
+		return Mat_det;
+	}
+	else {
+		matError("invalid size of matrix");
+	}
 }
 
+/*
 myMat mAdj(myMat m) {
 	// return adjoint of matrix m     assume 2*2 initially
 	// if time add code to check matrices of right size
