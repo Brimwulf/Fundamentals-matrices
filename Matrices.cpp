@@ -261,28 +261,43 @@ myMat mSubMat(myMat m, int row, int col) {
 		// write code to do sub mat
 	return mSub;
 }
-
-
+int x = 0;
 int mDet(myMat m) {
 	// compute determinant of matrix m
 	int fourMat_det;	// initialising result for 2x2
-	int Mat_det = 0;		// initialising a result for >2x2
-	if (m.numCols == 2 && m.numRows == 2) {
-		fourMat_det = m.data[0, 0] * m.data[1, 1] - m.data[0, 1] * m.data[1, 0];
+	int Mat_det = 0;	// initialising a result for >2x2
+	if (m.numRows == 1 && m.numCols == 1) {
+		return m.data[0];
+	}
+	else if (m.numCols == 2 && m.numRows == 2) {
+		fourMat_det = m.data[getIndex(m, 0, 0)] * m.data[getIndex(m, 1, 1)] - m.data[getIndex(m, 0, 1)] * m.data[getIndex(m, 1, 0)];
 		return fourMat_det;
 	}
+
+	/*else if (m.numRows == 3 && m.numCols == 3) {
+		//return the determinate of the matrix
+		return (m.data[0] * mDet(mSubMat(m, 0, 0))) - (m.data[1] * mDet(mSubMat(m, 0, 1))) + (m.data[2] * mDet(mSubMat(m, 0, 2)));
+		//return an error
+	}*/
+
 	// nice and simple, this just calculates ad-bc for a matrix [a,b;c,d]
-	else if (m.numCols > 2 || m.numRows > 2) {
-		for (int i = 0; i < m.numRows; i++) {
-			for (int j = 0; j < m.numCols; j++) {
-				Mat_det += ((i+j) % 2 == 0 ? 1 :  -1) * m.data[getIndex(m,i,j)] * mDet(mSubMat(m, i, j));
-				/* the((i + j) % 2 == 0 ? 1 : -1) part of this line was difficult to grasp at first but essentially what it does is check if 
-				i+j is divisible by 2. If it is then the result is 1 and if not -1. This part is necessary because we need to make sure we have 
-				the correct signs in order to accurately calculate the determinant of a matrix > 2x2.*/
-			}
+	else if (m.numRows == 3 && m.numCols == 3) {
+		for (int i = 0; i < m.numCols; i++) {
+			int sign = ((i % 2 == 0) ? 1 : -1);
+			printMat("submat is: ", mSubMat(m, 0, i));
+			int det = mDet(mSubMat(m, 0, i));
+			Mat_det += sign * m.data[i] * det;
+			std::cout << Mat_det;
+			x += Mat_det;
+			std::cout << x << std::endl;
 		}
-		return Mat_det;
+
+		/* the((i + j) % 2 == 0 ? 1 : -1) part of this line was difficult to grasp at first but essentially what it does is check if
+		i+j is divisible by 2. If it is then the result is 1 and if not -1. This part is necessary because we need to make sure we have
+		the correct signs in order to accurately calculate the determinant of a matrix > 2x2.*/
+		return x;
 	}
+
 	else {
 		matError("invalid size of matrix");
 	}
@@ -292,13 +307,12 @@ int mDet(myMat m) {
 myMat mAdj(myMat m) {
 	// return adjoint of matrix m     assume 2*2 initially
 	// if time add code to check matrices of right size
-	myMat Cofactor;
-	Cofactor.numCols = m.numCols;
-	Cofactor.numRows = m.numRows;
+	myMat Cofactor = zeroMat(m.numRows, m.numCols);
+	
 	for (int i = 0; i < m.numRows; i++) {
 		for (int j = 0; j < m.numCols; j++) {
 			int Cofactor_sign = -1 ^ (i + j) * mDet(m);
-			Cofactor.data[i, j] = Cofactor_sign;
+			Cofactor.data[getIndex(Cofactor, i, j)] = Cofactor_sign;
 		}
 	}
 	return Cofactor;
@@ -308,35 +322,65 @@ myMat mAdj(myMat m) {
 void testMatEqn (myMat A, myMat b) {
 	// solve Ax = b using Cramer  and using Adjoint
 	// This is for assessment later in term
-	myMat x;
-	x.numRows = A.numRows;
-	x.numCols = 1;
-	double detA = mDet(A);
-	double inverse_detA = 1 / detA;
+
+	int detA = mDet(A);
+
+	if (detA == 0) {
+		std::cout << "Error: determinant of matrix A is zero and thus cramers rule cannot be used";
+		return;
+	}
+
+	myMat adjA = mAdj(A);
+	myMat x = zeroMat(b.numRows, 1);
+
+	for (int i = 0; i < A.numRows; i++) {
+		myMat tempA = mSetCol(A, i, b);
+		int detTempA = mDet(tempA);
+		x.data[i] = detTempA / detA;
+	}
+
+	printMat("Solution vector x ", x);
+
+	/*myMat x = zeroMat(A.numRows, 1);
+	int detA = mDet(A);
+	int inverse_detA = 1 / detA;
 	myMat inverse_A = mScalarMultDiv(A, inverse_detA, 1);
 	for (int i = 0; i < A.numRows; i++) {
 		for (int j = 0; j < A.numCols; j++) {
-			x.data[i,0] = b.data[i, j] * inverse_A.data[i, j];	// I'm fairly sure this part of the function won't work so I need to revisit it.
+			x.data[i,0] = b.data[getIndex(x, i, j)] * inverse_A.data[getIndex(inverse_A, i, j)];	// I'm fairly sure this part of the function won't work so I need to revisit it.
 		}
-	}
+	}*/
 }
 
 
 int main()
 {
 	std::cout << "vl024813\n";	// change to your student number
-	myMat m1, m2, m3;						// create  matrices
+	myMat m1, m2, m3, A, b, C, d;						// create  matrices
 
 	m1 = mFromStr("9,6,8;7,8,10");			// change numbers to those in A from Q1 on web page, as specified on the sheet
 	m2 = mFromStr("10,9,6;8,8,7");			// ditto but B
 	m3 = mFromStr("7,7;2,8;7,8");			// ditto  but C
-	printMat("m1", m1);						// display m1
+	A = mFromStr("6, 8;8,7");
+	//x = mFromStr("x0;x1");
+	b = mFromStr("76;72");
+	C = mFromStr("9,6,2;8,8,10;9,7,7");
+	d = mFromStr("130;200;177");
+	
+	/*printMat("m1", m1);						// display m1
 	printMat("m2", m2);						// display m2
 	printMat("m3", m3);						// display m3
 
 	testVecs(m1, m3);						// test the vector routines
-	testMatOps(m1, m2, m3);					// test the add, transpose and multiply
-	testMatEqn(m1, m2);
+	testMatOps(m1, m2, m3);			// test the add, transpose and multiply
+	testMatEqn(A, b);
+	
+    testMatEqn(C, d);*/
+
+	printMat("message", mSubMat(m1, 0, 1));
+
+	/*the mSubMat function is not working as expected. it's returning a bunch of zeroes where there should not be. In theory, fix this, and it should fix
+	testMatEqn. I.e. revisit mSubMat*/
 
 	return 0;
 }
