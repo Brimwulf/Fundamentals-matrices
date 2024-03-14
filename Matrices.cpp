@@ -249,14 +249,21 @@ myMat mSubMat(myMat m, int row, int col) {
 	//mSub.numRows = m.numRows - 1;
 	//mSub.numCols = m.numCols - 1;
 	// Created a matrix with one fewer row and column than the matrix parsed in.
+	int subRow = 0;
 	for (int i = 0; i < m.numRows; i++) {
+		if (i == row) {
+			continue;
+		}
+		int subCol = 0;
 		for (int j = 0; j < m.numCols; j++) {
-			if (i == row || j == col) {
+			if (j == col) {
 				continue;
 			}
 			// if i or j matches the row or column parsed into this function it skips over that data value thus omitting it from the submatrix
-			mSub.data[getIndex(mSub, i, j)] = m.data[getIndex(m, i, j)];
+			mSub.data[getIndex(mSub, subRow, subCol)] = m.data[getIndex(m, i, j)];
+			subCol++;
 		}
+		subRow++;
 	}
 		// write code to do sub mat
 	return mSub;
@@ -367,7 +374,7 @@ int main()
 	C = mFromStr("9,6,2;8,8,10;9,7,7");
 	d = mFromStr("130;200;177");
 	
-	/*printMat("m1", m1);						// display m1
+	printMat("m1", m1);						// display m1
 	printMat("m2", m2);						// display m2
 	printMat("m3", m3);						// display m3
 
@@ -375,7 +382,7 @@ int main()
 	testMatOps(m1, m2, m3);			// test the add, transpose and multiply
 	testMatEqn(A, b);
 	
-    testMatEqn(C, d);*/
+    testMatEqn(C, d);
 
 	printMat("message", mSubMat(m1, 0, 1));
 
