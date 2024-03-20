@@ -112,11 +112,6 @@ int dotProd(myMat v1, myMat v2) {
 		res += v1.data[i] * v2.data[i];
 	}
 	
-	/* then I want to have a for loop that steps through each item in the product array and increments the res variable by 
-	this amount thus res will be the sum of each item in prod */
-	/*for (int i = 0; i < prod.numRows; i++) {
-		res += prod.data[i];
-	}*/
 	// Rewrote this part so that the calculation places directly into result which makes more sense.
 
 	return res;
@@ -154,10 +149,6 @@ myMat mAdd(myMat m1, myMat m2) {
 	myMat res = zeroMat(m1.numRows, m2.numCols);
 	// create a new matrix whose elements are the sum of the equiv elements in m1 and m2
 	// if time add code to check matrices of right size
-	//if (m1.numRows != m2.numRows || m1.numCols != m2.numCols) {				// An if statement that checks that both matrices are equal size rows.
-		// Returns this error statement if they are not.
-	//return zeroMat(0,0);
-	//}
 	// change arguments
 	// write code to do add
 	// I want to create a for loop that steps through each item in both matrices and adds them together.
@@ -272,15 +263,11 @@ myMat mSubMat(myMat m, int row, int col) {
 
 int mDet(myMat m) {
 	// compute determinant of matrix m
-	int fourMat_det;	// initialising result for 2x2
-	int Mat_det = 0;	// initialising a result for >2x2
-	int x = 0;
 	if (m.numRows == 1 && m.numCols == 1) {
 		return m.data[0];
 	}
 	if (m.numCols == 2 && m.numRows == 2) {
-		fourMat_det = m.data[getIndex(m, 0, 0)] * m.data[getIndex(m, 1, 1)] - m.data[getIndex(m, 0, 1)] * m.data[getIndex(m, 1, 0)];
-		return fourMat_det;
+		return m.data[getIndex(m, 0, 0)] * m.data[getIndex(m, 1, 1)] - m.data[getIndex(m, 0, 1)] * m.data[getIndex(m, 1, 0)];
 	}
 
 	if (m.numRows == 3 && m.numCols == 3) {
@@ -289,42 +276,16 @@ int mDet(myMat m) {
 		for (int j = 0; j < 3; j++) {
 			// Calculate the minor of element (0, j)
 			myMat subMat = mSubMat(m, 0, j);
-			printMat("Submat is: ", subMat);
 			// Calculate the determinant of the submatrix
 			int minorDet = mDet(subMat);
 			// Add the product of the element and its minor determinant, with appropriate sign
 			det += ((0 + j) % 2 == 0 ? 1 : -1) * m.data[j] * minorDet;
-			return det;
+			
 		}
+		return det;
 	}
 
-	/*else if (m.numRows == 3 && m.numCols == 3) {
-		//return the determinate of the matrix
-		return (m.data[0] * mDet(mSubMat(m, 0, 0))) - (m.data[1] * mDet(mSubMat(m, 0, 1))) + (m.data[2] * mDet(mSubMat(m, 0, 2)));
-		//return an error
-	}*/
-
-	// nice and simple, this just calculates ad-bc for a matrix [a,b;c,d]
-	/*else if (m.numRows == 3 && m.numCols == 3) {
-		for (int i = 0; i < m.numCols; i++) {
-			int sign = ((i % 2 == 0) ? 1 : -1);
-			printMat("submat is: ", mSubMat(m, 0, i));
-			int det = mDet(mSubMat(m, 0, i));
-			Mat_det += sign * m.data[i] * det;
-			std::cout << Mat_det;
-			x += Mat_det;
-			std::cout << x << std::endl;
-		}*/
-
-		/* the((i + j) % 2 == 0 ? 1 : -1) part of this line was difficult to grasp at first but essentially what it does is check if
-		i+j is divisible by 2. If it is then the result is 1 and if not -1. This part is necessary because we need to make sure we have
-		the correct signs in order to accurately calculate the determinant of a matrix > 2x2.*/
-		//return x;
-	//}
-
-	else {
-		matError("invalid size of matrix");
-	}
+	matError("invalid size of matrix");
 }
 
 
@@ -368,35 +329,23 @@ void testMatEqn (myMat A, myMat b) {
 		}
 		int detTempA = mDet(tempA);
 		x.data[i] = detTempA / detA;
-		/*myMat tempA = mSetCol(A, i, b);
-		int detTempA = mDet(tempA);
-		x.data[i] = detTempA / detA;*/
+		
 	}
 
 	printMat("Solution vector x ", x);
 
-	//myMat x = zeroMat(A.numRows, 1);
-	//int detA = mDet(A);
-	//int inverse_detA = 1 / detA;
-	//myMat inverse_A = mScalarMultDiv(A, inverse_detA, 1);
-	//for (int i = 0; i < A.numRows; i++) {
-	//	for (int j = 0; j < A.numCols; j++) {
-	//		x.data[i,0] = b.data[getIndex(x, i, j)] * inverse_A.data[getIndex(inverse_A, i, j)];	// I'm fairly sure this part of the function won't work so I need to revisit it.
-	//	}
-	//}
 }
 
 
 int main()
 {
-	std::cout << "vl024813\n";	// change to your student number
-	myMat m1, m2, m3, A, b, C, d;						// create  matrices
+	std::cout << "32024813\n";				// change to your student number
+	myMat m1, m2, m3, A, b, C, d;			// create  matrices
 
 	m1 = mFromStr("9,6,8;7,8,10");			// change numbers to those in A from Q1 on web page, as specified on the sheet
 	m2 = mFromStr("10,9,6;8,8,7");			// ditto but B
 	m3 = mFromStr("7,7;2,8;7,8");			// ditto  but C
 	A = mFromStr("6, 8;8,7");
-	//x = mFromStr("x0;x1");
 	b = mFromStr("76;72");
 	C = mFromStr("9,6,2;8,8,10;9,7,7");
 	d = mFromStr("130;200;177");
@@ -406,13 +355,10 @@ int main()
 	printMat("m3", m3);						// display m3
 
 	testVecs(m1, m3);						// test the vector routines
-	testMatOps(m1, m2, m3);			// test the add, transpose and multiply
+	testMatOps(m1, m2, m3);					// test the add, transpose and multiply
 	testMatEqn(A, b);
 	
     testMatEqn(C, d);
-
-	/*the mSubMat function is not working as expected. it's returning a bunch of zeroes where there should not be. In theory, fix this, and it should fix
-	testMatEqn. I.e. revisit mSubMat*/
 
 	return 0;
 
