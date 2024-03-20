@@ -203,7 +203,7 @@ myMat mMult(myMat m1, myMat m2) {
 	// write code to do multiply
 	
 		
-	if(m1.numCols == m2.numCols && m1.numRows == m2.numRows) {
+	if(m1.numCols == m2.numRows || m1.numRows == m2.numCols || m1.numCols == m2.numCols && m1.numRows == m2.numRows) {
 		for (int i = 0; i < m1.numRows; i++) {
 			for (int j = 0; j < m2.numCols; j++) {
 				res.data[getIndex(res, i, j)] = m1.data[i] * m2.data[j];
@@ -264,9 +264,11 @@ myMat mSubMat(myMat m, int row, int col) {
 int mDet(myMat m) {
 	// compute determinant of matrix m
 	if (m.numRows == 1 && m.numCols == 1) {
+		// A 1x1 matrix is just a number so the determinant is just that number.
 		return m.data[0];
 	}
 	if (m.numCols == 2 && m.numRows == 2) {
+		// recursion is not needed here as the 2x2 matrix calculation does not require submatrices.
 		return m.data[getIndex(m, 0, 0)] * m.data[getIndex(m, 1, 1)] - m.data[getIndex(m, 0, 1)] * m.data[getIndex(m, 1, 0)];
 	}
 
@@ -336,19 +338,30 @@ void testMatEqn (myMat A, myMat b) {
 
 }
 
+myMat question2(myMat A, myMat b) {
+	myMat adjAtimesB;
+	myMat x;
+	int x0, x1;
+	adjAtimesB = mMult(mAdj(A), b);
+	x = mScalarMultDiv(adjAtimesB, mDet(A), 1);
+	printMat("Question 2 is ", x);
+	return x;
+}
 
 int main()
 {
 	std::cout << "32024813\n";				// change to your student number
-	myMat m1, m2, m3, A, b, C, d;			// create  matrices
+	myMat m1, m2, m3, A, b, C, d, E, f;			// create  matrices
 
 	m1 = mFromStr("9,6,8;7,8,10");			// change numbers to those in A from Q1 on web page, as specified on the sheet
 	m2 = mFromStr("10,9,6;8,8,7");			// ditto but B
 	m3 = mFromStr("7,7;2,8;7,8");			// ditto  but C
-	A = mFromStr("6, 8;8,7");
+	A = mFromStr("6,8;8,7");
 	b = mFromStr("76;72");
 	C = mFromStr("9,6,2;8,8,10;9,7,7");
 	d = mFromStr("130;200;177");
+	E = mFromStr("8,10;9,6");
+	f = mFromStr("134;114");
 	
 	printMat("m1", m1);						// display m1
 	printMat("m2", m2);						// display m2
@@ -356,8 +369,9 @@ int main()
 
 	testVecs(m1, m3);						// test the vector routines
 	testMatOps(m1, m2, m3);					// test the add, transpose and multiply
+
+	question2(E, f);
 	testMatEqn(A, b);
-	
     testMatEqn(C, d);
 
 	return 0;
