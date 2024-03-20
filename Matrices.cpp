@@ -278,22 +278,23 @@ int mDet(myMat m) {
 	if (m.numRows == 1 && m.numCols == 1) {
 		return m.data[0];
 	}
-	else if (m.numCols == 2 && m.numRows == 2) {
+	if (m.numCols == 2 && m.numRows == 2) {
 		fourMat_det = m.data[getIndex(m, 0, 0)] * m.data[getIndex(m, 1, 1)] - m.data[getIndex(m, 0, 1)] * m.data[getIndex(m, 1, 0)];
 		return fourMat_det;
 	}
 
-	else if (m.numRows == 3 && m.numCols == 3) {
+	if (m.numRows == 3 && m.numCols == 3) {
 		int det = 0;
 		// Recursive case: Calculate the determinant using the expansion along the first row
-		for (int j = 0; j < 3; ++j) {
+		for (int j = 0; j < 3; j++) {
 			// Calculate the minor of element (0, j)
 			myMat subMat = mSubMat(m, 0, j);
 			printMat("Submat is: ", subMat);
-			// Calculate the determinant of the minor
+			// Calculate the determinant of the submatrix
 			int minorDet = mDet(subMat);
 			// Add the product of the element and its minor determinant, with appropriate sign
 			det += ((0 + j) % 2 == 0 ? 1 : -1) * m.data[j] * minorDet;
+			return det;
 		}
 	}
 
@@ -334,7 +335,7 @@ myMat mAdj(myMat m) {
 	
 	for (int i = 0; i < m.numRows; i++) {
 		for (int j = 0; j < m.numCols; j++) {
-			int Cofactor_sign = -1 ^ (i + j) * mDet(m);
+			int Cofactor_sign = pow(-1,(i+j)) * mDet(m);
 			Cofactor.data[getIndex(Cofactor, i, j)] = Cofactor_sign;
 		}
 	}
@@ -343,7 +344,7 @@ myMat mAdj(myMat m) {
 
 
 void testMatEqn (myMat A, myMat b) {
-	// solve Ax = b using Cramer  and using Adjoint
+	// solve Ax = b using Cramer rule and using Adjoint
 	// This is for assessment later in term
 
 	int detA = mDet(A);
@@ -374,15 +375,15 @@ void testMatEqn (myMat A, myMat b) {
 
 	printMat("Solution vector x ", x);
 
-	/*myMat x = zeroMat(A.numRows, 1);
-	int detA = mDet(A);
-	int inverse_detA = 1 / detA;
-	myMat inverse_A = mScalarMultDiv(A, inverse_detA, 1);
-	for (int i = 0; i < A.numRows; i++) {
-		for (int j = 0; j < A.numCols; j++) {
-			x.data[i,0] = b.data[getIndex(x, i, j)] * inverse_A.data[getIndex(inverse_A, i, j)];	// I'm fairly sure this part of the function won't work so I need to revisit it.
-		}
-	}*/
+	//myMat x = zeroMat(A.numRows, 1);
+	//int detA = mDet(A);
+	//int inverse_detA = 1 / detA;
+	//myMat inverse_A = mScalarMultDiv(A, inverse_detA, 1);
+	//for (int i = 0; i < A.numRows; i++) {
+	//	for (int j = 0; j < A.numCols; j++) {
+	//		x.data[i,0] = b.data[getIndex(x, i, j)] * inverse_A.data[getIndex(inverse_A, i, j)];	// I'm fairly sure this part of the function won't work so I need to revisit it.
+	//	}
+	//}
 }
 
 
@@ -410,10 +411,9 @@ int main()
 	
     testMatEqn(C, d);
 
-	printMat("message", mSubMat(m1, 0, 1));
-
 	/*the mSubMat function is not working as expected. it's returning a bunch of zeroes where there should not be. In theory, fix this, and it should fix
 	testMatEqn. I.e. revisit mSubMat*/
 
 	return 0;
+
 }
