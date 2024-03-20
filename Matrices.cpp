@@ -260,7 +260,8 @@ myMat mSubMat(myMat m, int row, int col) {
 				continue;
 			}
 			// if i or j matches the row or column parsed into this function it skips over that data value thus omitting it from the submatrix
-			mSub.data[getIndex(mSub, subRow, subCol)] = m.data[getIndex(m, i, j)];
+			//mSub.data[getIndex(mSub, subRow, subCol)] = m.data[getIndex(m, i, j)];
+			mSub.data[subRow * mSub.numCols + subCol] = m.data[i * m.numCols + j];
 			subCol++;
 		}
 		subRow++;
@@ -268,17 +269,32 @@ myMat mSubMat(myMat m, int row, int col) {
 		// write code to do sub mat
 	return mSub;
 }
-int x = 0;
+
 int mDet(myMat m) {
 	// compute determinant of matrix m
 	int fourMat_det;	// initialising result for 2x2
 	int Mat_det = 0;	// initialising a result for >2x2
+	int x = 0;
 	if (m.numRows == 1 && m.numCols == 1) {
 		return m.data[0];
 	}
 	else if (m.numCols == 2 && m.numRows == 2) {
 		fourMat_det = m.data[getIndex(m, 0, 0)] * m.data[getIndex(m, 1, 1)] - m.data[getIndex(m, 0, 1)] * m.data[getIndex(m, 1, 0)];
 		return fourMat_det;
+	}
+
+	else if (m.numRows == 3 && m.numCols == 3) {
+		int det = 0;
+		// Recursive case: Calculate the determinant using the expansion along the first row
+		for (int j = 0; j < 3; ++j) {
+			// Calculate the minor of element (0, j)
+			myMat subMat = mSubMat(m, 0, j);
+			printMat("Submat is: ", subMat);
+			// Calculate the determinant of the minor
+			int minorDet = mDet(subMat);
+			// Add the product of the element and its minor determinant, with appropriate sign
+			det += ((0 + j) % 2 == 0 ? 1 : -1) * m.data[j] * minorDet;
+		}
 	}
 
 	/*else if (m.numRows == 3 && m.numCols == 3) {
@@ -288,7 +304,7 @@ int mDet(myMat m) {
 	}*/
 
 	// nice and simple, this just calculates ad-bc for a matrix [a,b;c,d]
-	else if (m.numRows == 3 && m.numCols == 3) {
+	/*else if (m.numRows == 3 && m.numCols == 3) {
 		for (int i = 0; i < m.numCols; i++) {
 			int sign = ((i % 2 == 0) ? 1 : -1);
 			printMat("submat is: ", mSubMat(m, 0, i));
@@ -297,13 +313,13 @@ int mDet(myMat m) {
 			std::cout << Mat_det;
 			x += Mat_det;
 			std::cout << x << std::endl;
-		}
+		}*/
 
 		/* the((i + j) % 2 == 0 ? 1 : -1) part of this line was difficult to grasp at first but essentially what it does is check if
 		i+j is divisible by 2. If it is then the result is 1 and if not -1. This part is necessary because we need to make sure we have
 		the correct signs in order to accurately calculate the determinant of a matrix > 2x2.*/
-		return x;
-	}
+		//return x;
+	//}
 
 	else {
 		matError("invalid size of matrix");
@@ -337,13 +353,23 @@ void testMatEqn (myMat A, myMat b) {
 		return;
 	}
 
-	myMat adjA = mAdj(A);
-	myMat x = zeroMat(b.numRows, 1);
+	//myMat adjA = mAdj(A);
+	//myMat x = zeroMat(b.numRows, 1);
+	myMat x;
+	x.numRows = A.numCols;
+	x.numCols = 1;
+	x = zeroMat(x.numRows, x.numCols);
 
 	for (int i = 0; i < A.numRows; i++) {
-		myMat tempA = mSetCol(A, i, b);
+		myMat tempA = A;
+		for (int j = 0; j < A.numRows; j++) {
+			tempA.data[j * A.numCols + i] = b.data[j];
+		}
 		int detTempA = mDet(tempA);
 		x.data[i] = detTempA / detA;
+		/*myMat tempA = mSetCol(A, i, b);
+		int detTempA = mDet(tempA);
+		x.data[i] = detTempA / detA;*/
 	}
 
 	printMat("Solution vector x ", x);
