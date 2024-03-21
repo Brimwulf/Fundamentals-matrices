@@ -106,13 +106,11 @@ myMat mSetCol(myMat m, int col, myMat v) {
 
 int dotProd(myMat v1, myMat v2) {
 	// calculate the dot product of two vectors v1 and v2, each of which could be eitherrow or column vectors
-	int res{}; // initialising a variable for the result
-	// I want to have a for loop that steps through each item in both arrays and multiplies them together and then places them in a new array called prod
+	int res = 0; // initialising a variable for the result
+	
 	for (int i = 0; i < v2.numCols*v2.numRows; i++) {
 		res += v1.data[i] * v2.data[i];
 	}
-	
-	// Rewrote this part so that the calculation places directly into result which makes more sense.
 
 	return res;
 }
@@ -151,7 +149,7 @@ myMat mAdd(myMat m1, myMat m2) {
 	// if time add code to check matrices of right size
 	// change arguments
 	// write code to do add
-	// I want to create a for loop that steps through each item in both matrices and adds them together.
+	// need a for loop that steps through each item in both matrices and adds them together.
 
 	if (m1.numCols == m2.numCols && m1.numRows == m2.numRows) { 
 		for (int i = 0; i < m1.numRows*m1.numCols; i++) {
@@ -191,8 +189,9 @@ myMat mScalarMultDiv(myMat m, int s, int choice) {
 		}
 	}
 	else {
-		std::cout << "Error: Invalid parameter for choice";
+		std::cout << "Error: Invalid argument for choice";
 	}
+	
 	return res;
 }
 
@@ -295,14 +294,16 @@ myMat mAdj(myMat m) {
 	// return adjoint of matrix m     assume 2*2 initially
 	// if time add code to check matrices of right size
 	myMat Cofactor = zeroMat(m.numRows, m.numCols);
-	
-	for (int i = 0; i < m.numRows; i++) {
-		for (int j = 0; j < m.numCols; j++) {
-			int Cofactor_sign = pow(-1,(i+j)) * mDet(m);
-			Cofactor.data[getIndex(Cofactor, i, j)] = Cofactor_sign;
+	if (m.numCols == 2 && m.numRows == 2) {
+		for (int i = 0; i < m.numRows; i++) {
+			for (int j = 0; j < m.numCols; j++) {
+				int Cofactor_sign = pow(-1, (i + j)) * mDet(m);
+				Cofactor.data[getIndex(Cofactor, i, j)] = Cofactor_sign;
+			}
 		}
+		return Cofactor;
 	}
-	return Cofactor;
+	matError("Invalid size of matrix.");
 }
 
 
@@ -331,7 +332,8 @@ void testMatEqn (myMat A, myMat b) {
 		}
 		int detTempA = mDet(tempA);
 		x.data[i] = detTempA / detA;
-		
+		// Steps through each element in matrix A setting the i-th column in tempA to the corresponding element of vector b
+		// thus replacing the i-th column with matrix b giving the augment matrix.
 	}
 
 	printMat("Solution vector x ", x);
