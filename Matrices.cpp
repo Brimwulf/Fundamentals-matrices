@@ -198,20 +198,18 @@ myMat mScalarMultDiv(myMat m, int s, int choice) {
 myMat mMult(myMat m1, myMat m2) {
 	// generate a matrix which is the product of m1 and m2
 	// if time add code to check matrices of right size
-	myMat res = zeroMat(m1.numRows, m2.numCols);		// change arguments
 	// write code to do multiply
 	
-		
-	if(m1.numCols == m2.numRows || m1.numRows == m2.numCols || m1.numCols == m2.numCols && m1.numRows == m2.numRows) {
-		for (int i = 0; i < m1.numRows; i++) {
-			for (int j = 0; j < m2.numCols; j++) {
-				res.data[getIndex(res, i, j)] = m1.data[i] * m2.data[j];
+	if (m1.numCols != m2.numRows) {
+		return matError("Matrices sizes are invalid for multiplication");;
+	}
+	myMat res = zeroMat(m1.numRows, m2.numCols);		// change arguments
+	for (int i = 0; i < m1.numRows; i++) {
+		for (int j = 0; j < m2.numCols; j++) {
+			for (int k = 0; k < m1.numCols; k++) {
+				res.data[getIndex(res, i, j)] += m1.data[getIndex(m1, i, k)] * m2.data[getIndex(m2, k, j)];
 			}
 		}
-	}
-	else {
-		matError("Matrices sizes are invalid");
-		return zeroMat(0, 0);
 	}
 	return res;
 }
@@ -223,7 +221,7 @@ void testMatOps(myMat m1, myMat m2, myMat m3) {
 	printMat("m1 + m3", mAdd(m1, m3));
 	printMat("m1 + m3'", mAdd(m1, mTranspose(m3)));
 	printMat("m1*m2", mMult(m1, m2));
-	printMat("m2*m1", mMult(m2, m1));
+	printMat("m3*m2", mMult(m3, m2));
 	printMat("m1*m3", mMult(m1, m2));
 	printMat("m1*m3", mScalarMultDiv(m1, 3, 0));
 }
@@ -295,9 +293,10 @@ myMat mAdj(myMat m) {
 	// if time add code to check matrices of right size
 	myMat Cofactor = zeroMat(m.numRows, m.numCols);
 	if (m.numCols == 2 && m.numRows == 2) {
+		int detM = mDet(m);
 		for (int i = 0; i < m.numRows; i++) {
 			for (int j = 0; j < m.numCols; j++) {
-				int Cofactor_sign = pow(-1, (i + j)) * mDet(m);
+				int Cofactor_sign = pow(-1, (i + j)) * detM;
 				Cofactor.data[getIndex(Cofactor, i, j)] = Cofactor_sign;
 			}
 		}
@@ -340,14 +339,22 @@ void testMatEqn (myMat A, myMat b) {
 
 }
 
-myMat question2(myMat A, myMat b) {
-	myMat adjAtimesB;
-	myMat x;
+int question2(myMat A, myMat b) {
 	int x0, x1;
-	adjAtimesB = mMult(mAdj(A), b);
-	x = mScalarMultDiv(adjAtimesB, mDet(A), 1);
-	printMat("Question 2 is ", x);
-	return x;
+	double det = mDet(A);
+	if (det == 0) {
+		std::cout << "Determinant of A is 0 and thus cannot be used a divisor" << std::endl;
+		return 0;
+	}
+	myMat adjA = mAdj(A);
+	myMat adjAb = mMult(adjA, b);
+	printMat("adjA", adjA);
+	printMat("adjAb", adjAb);
+	x0 = adjAb.data[getIndex(adjAb, 0, 0)] / det;
+	x1 = adjAb.data[getIndex(adjAb, 0, 1)] / det;
+	std::cout << "determinant of A: " << mDet(A) << "\n" << std::endl;
+	std::cout << "x solutions are:\n" << x0 << "\n" << x1 << "\n" << std::endl;
+	return x0, x1;
 }
 
 int main()
